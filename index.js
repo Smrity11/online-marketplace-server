@@ -5,7 +5,13 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+
+app.use(cors({
+  origin: [
+      'http://localhost:5173',
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 
@@ -27,27 +33,34 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const postCourseCollection = client.db("courseDB").collection('allpostCourse')
+    const postjobCollection = client.db("courseDB").collection('allpostJob')
 
-    app.get('/postcourse' ,async(req ,res ) =>{
-      const cursor = postCourseCollection.find()
+    app.get('/postjob' ,async(req ,res ) =>{
+      const cursor = postjobCollection.find()
       const result = await cursor.toArray()
       res.send(result)
   })
 
-    app.post('/postcourse' , async(req,res) =>{
-      const newCourse = req.body
-      console.log(newCourse);
-      const result = await postCourseCollection.insertOne(newCourse)
+    app.post('/postjob' , async(req,res) =>{
+      const newjob = req.body
+      console.log(newjob);
+      const result = await postjobCollection.insertOne(newjob)
       res.send(result)
   })
+
+    app.delete("/postjob/:id" ,async(req , res ) =>{
+        const id = req.params.id 
+        const query = {_id: new ObjectId(id)}
+        const result =await postjobCollection.deleteOne(query)
+        res.send(result)
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
