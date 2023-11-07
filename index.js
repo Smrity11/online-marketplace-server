@@ -102,6 +102,23 @@ async function run() {
         res.send(result);
     })
 
+
+
+    app.get('/postJob' ,async(req ,res ) =>{
+      const cursor = postjobCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+  })
+
+  app.get("/postJob/:id" ,async(req , res ) =>{
+    const id = req.params.id 
+    const query = { _id: new ObjectId(id)}
+    const result =await postjobCollection.findOne(query)
+    res.send(result)
+})
+
+
+
        app.post('/allpostJob' , async(req,res) =>{
       const newjob = req.body
       console.log(newjob);
@@ -109,28 +126,38 @@ async function run() {
       res.send(result)
   })
 
-  //   app.get('/postjob' ,async(req ,res ) =>{
-  //     const cursor = postjobCollection.find()
-  //     const result = await cursor.toArray()
-  //     res.send(result)
-  // })
 
-
-    app.get('/allpostJob/id' ,async(req ,res ) =>{
-      const cursor = postjobCollection.find()
-      const result = await cursor.toArray()
-      res.send(result)
-  })
 
 
   // post method
  
 
+// update method 
+
+app.put("/postJob/:id" ,async(req , res ) =>{
+  const id = req.params.id 
+  const filter = { _id: new ObjectId(id)}
+  const options = { upsert: true}
+  const updatedjobs = req.body
+  const jobs = {
+      $set : {
+          email: updatedjobs.email ,
+          title: updatedjobs.title ,
+          deadline: updatedjobs.deadline ,
+          Minimumprice: updatedjobs.Minimumprice ,
+          Maximumprice: updatedjobs.Maximumprice,
+          description: updatedjobs.description ,
+          category: updatedjobs.category
+      }
+  }
+  const result =await postjobCollection.updateOne(filter , jobs , options)
+  res.send(result)
+})
 
 
 
 // delete method
-    app.delete("/postjob/:id" ,async(req , res ) =>{
+    app.delete("/postJob/:id" ,async(req , res ) =>{
         const id = req.params.id 
         const query = {_id: new ObjectId(id)}
         const result =await postjobCollection.deleteOne(query)
