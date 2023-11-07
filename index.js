@@ -64,12 +64,13 @@ async function run() {
     // await client.connect();
 
     const postjobCollection = client.db("courseDB").collection('allpostJob')
+    const bidjobCollection = client.db("courseDB").collection('allbidJob')
 
          // auth related api
          app.post('/jwt', logger, async (req, res) => {
           const user = req.body;
           console.log('user for token', user);
-          const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+          const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10h' });
 
           res.cookie('token', token, {
               httpOnly: true,
@@ -85,7 +86,39 @@ async function run() {
           res.clearCookie('token', { maxAge: 0 }).send({ success: true })
       })
 
+      //  booking job
 
+
+      app.get('/allbookingjob', logger, verifyToken, async (req, res) => {
+        console.log(req.query.email);
+        console.log('token owner info', req.user)
+        if(req.user.email !== req.query.email){
+            return res.status(403).send({message: 'forbidden access'})
+        }
+       let query = {};
+        if (req.query?.email) {
+            query = { email: req.query.email }
+        }
+        const result = await bidjobCollection.find(query).toArray();
+        res.send(result);
+    })
+
+      app.post('/bookingjob', async (req, res) => {
+        const booking = req.body;
+        console.log(booking);
+        const result = await bidjobCollection.insertOne(booking);
+        res.send(result);
+    });
+
+    app.get('/bookingjob' ,async(req ,res ) =>{
+      const cursor = bidjobCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+  })
+
+
+   
+    // post job
 
       app.get('/allpostJob', logger, verifyToken, async (req, res) => {
           console.log(req.query.email);
@@ -163,6 +196,7 @@ app.put("/postJob/:id" ,async(req , res ) =>{
         const result =await postjobCollection.deleteOne(query)
         res.send(result)
     })
+  
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
