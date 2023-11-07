@@ -149,6 +149,12 @@ async function run() {
     const result =await postjobCollection.findOne(query)
     res.send(result)
 })
+  app.get("/bookingjob/:id" ,async(req , res ) =>{
+    const id = req.params.id 
+    const query = { _id: new ObjectId(id)}
+    const result =await bidjobCollection.findOne(query)
+    res.send(result)
+})
 
 
 
@@ -185,6 +191,20 @@ app.put("/postJob/:id" ,async(req , res ) =>{
   }
   const result =await postjobCollection.updateOne(filter , jobs , options)
   res.send(result)
+})
+
+app.patch('/bookingjob/:id', async (req, res) => {
+  const id = req.params.id;
+  const filter = { _id: new ObjectId(id) };
+  const updatedBooking = req.body;
+  console.log(updatedBooking);
+  const updateDoc = {
+      $set: {
+          status: updatedBooking.status
+      },
+  };
+  const result = await bidjobCollection.updateOne(filter, updateDoc);
+  res.send(result);
 })
 
 
