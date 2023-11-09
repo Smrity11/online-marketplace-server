@@ -11,6 +11,8 @@ const port = process.env.PORT || 5000;
 app.use(cors({
   origin: [
       'https://online-marketplace-project.web.app',
+      "http://localhost:5173",
+      'https://online-marketplace-project.firebaseapp.com',
   ],
   credentials: true
 }));
